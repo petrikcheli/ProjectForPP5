@@ -1,15 +1,23 @@
 #include <iostream>
 #include "opencv2/opencv.hpp"
 #include <string.h>
-//#include "db.h"
+#include "db.h"
+//#include "mysql-connector-cpp/jdbc/cppconn/connection.h"
 //#include "mysql_connection.h"
-//#include "cppconn/driver.h"
-//#include "cppconn/connection.h"
-//#include "cppconn/statement.h"
-//#include "cppconn/prepared_statement.h"
-//#include "cppconn/resultset.h"
+//#include "mysql.h"
 
-//using namespace dbPixels;
+//#include "mysql-connector-cpp/jdbc/cppconn/statement.h"
+//#include "mysql-connector-cpp/jdbc/cppconn/prepared_statement.h"
+//#include "mysql-connector-cpp/jdbc/cppconn/resultset.h"
+//#include "mysql-connector-cpp/jdbc/cppconn/driver.h"
+
+#include "cppconn/driver.h"
+#include "cppconn/connection.h"
+#include "cppconn/statement.h"
+#include "cppconn/prepared_statement.h"
+#include "cppconn/resultset.h"
+
+using namespace dbPixels;
 /*
     std::string a = "";
 
@@ -189,11 +197,11 @@ void myTrackbarBmax(int pos, void*) {
 int main() {
 
     //Создаем соединение с базой данных
-    //db dateBase = db();
+    db dateBase = dbPixels::db();
 
-    //sql::Connection* conn = dateBase.get_connection();
-    //sql::Statement* stmt = dateBase.get_statement();
-    //sql::PreparedStatement* pstmt = dateBase.get_preparementStatement();
+    sql::Connection* conn = dateBase.get_connection();
+    sql::Statement* stmt = dateBase.get_statement();
+    sql::PreparedStatement* pstmt = dateBase.get_preparementStatement();
     //разбиваем картинки по каналам
     std::vector<cv::Mat> channel(3);
     cv::split(image, channel);
@@ -302,6 +310,14 @@ int main() {
     for (int i = 0; i < i_arr; i++) {
         array_suitable_pixels[i] = image.at<cv::Vec3b>(arr_not_repeat_vec[i][0],
                                                        arr_not_repeat_vec[i][1]);
+        int r = array_suitable_pixels[i][0];
+        int g = array_suitable_pixels[i][1];
+        int b = array_suitable_pixels[i][2];
+        pstmt = conn->prepareStatement("INSERT INTO pixels.rbg (r, g, b) VALUES ( ?, ?, ?)");
+        pstmt->setInt(1, r);
+        pstmt->setInt(2, g);
+        pstmt->setInt(3, b);
+        pstmt->execute();
         std::cout << arr_not_repeat_vec[i] << " : " << image.at<cv::Vec3b>(arr_not_repeat_vec[i][0],
                                                                            arr_not_repeat_vec[i][1]) << std::endl;
     }
@@ -311,8 +327,8 @@ int main() {
 
     cv::Mat first_photo_object = cv::imread("image/wheel0.jpg");
 
-
-    //pstmt = conn->prepareStatement("INSERT INTO pixels.rbg (r, g, b) VALUES ( r=?, g=?, b=?)");
+    /*
+    pstmt = conn->prepareStatement("INSERT INTO pixels.rbg (r, g, b) VALUES ( r=?, g=?, b=?)");
 
     int count_photo_object = 10;
     for (int k = 0; k < count_photo_object; k++) {
@@ -324,16 +340,16 @@ int main() {
                     //записываем результат в базу данных
                     //first_photo_object.at<cv::Vec3b>(i, j)[0]
                     //stmt->execute("INSERT INTO pixels.rbg (r, g, b) VALUES ('+temp_r+', '+temp_g+', '+temp_b+')");
-                    //pstmt->setInt(1, int(first_photo_object.at<cv::Vec3b>(i, j)[0]));
-                    //pstmt->setInt(2, int(first_photo_object.at<cv::Vec3b>(i, j)[1]));
-                    //pstmt->setInt(3, int(first_photo_object.at<cv::Vec3b>(i, j)[2]));
-                    //pstmt->execute();
+                    pstmt->setInt(1, int(first_photo_object.at<cv::Vec3b>(i, j)[0]));
+                    pstmt->setInt(2, int(first_photo_object.at<cv::Vec3b>(i, j)[1]));
+                    pstmt->setInt(3, int(first_photo_object.at<cv::Vec3b>(i, j)[2]));
+                    pstmt->execute();
 
                 }
             }
         }
     }
-
+    */
 
 
     std::cout << i_arr << std::endl;
