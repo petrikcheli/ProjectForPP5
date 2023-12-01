@@ -19,7 +19,9 @@ set(PROJECT_LINK_LIBS mysqlcppconn.lib)
 
 add_executable(OpenCV main.cpp
         db.cpp
-        db.h)
+        db.h
+        make_photo.cpp
+        make_photo.h)
 set(OpenCV_LIBS opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs)
 target_link_libraries(OpenCV ${OpenCV_LIBS})
 target_link_libraries(OpenCV ${PROJECT_LINK_LIBS})

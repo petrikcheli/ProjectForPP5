@@ -7,18 +7,6 @@
 #include "cppconn/statement.h"
 #include "cppconn/prepared_statement.h"
 
-//#include "mysql-connector-cpp/jdbc/cppconn/connection.h"
-//#include "mysql_connection.h"
-//#include "mysql.h"
-
-//#include "mysql-connector-cpp/jdbc/cppconn/statement.h"
-//#include "mysql-connector-cpp/jdbc/cppconn/prepared_statement.h"
-//#include "mysql-connector-cpp/jdbc/cppconn/resultset.h"
-//#include "mysql-connector-cpp/jdbc/cppconn/driver.h"
-
-
-#include "cppconn/resultset.h"
-
 using namespace dbPixels;
 /*
     std::string a = "";
@@ -139,11 +127,11 @@ int SizeImage() {
 */
 //методы
 
-void BubbleSort(int arr[]){
+void BubbleSort(int* arr, int size){
     bool flag = true;
     while(flag){
         flag = false;
-        for(int i = 1; i < sizeof(arr)/sizeof(arr[0])+1; i++){
+        for(int i = 1; i < size; i++){
             if(arr[i - 1] < arr[i]){
                 int temp = arr[i - 1];
                 arr[i - 1] = arr[i];
@@ -357,19 +345,24 @@ int main() {
         std::string photo_img_string = "image/wheel" + std::to_string(k) + extention_photo_object;
         cv::Mat photo = cv::imread(photo_img_string);
         for(int arr_s_p = 0; arr_s_p < size_arr_s_p; arr_s_p++){
+            bool flag_at_have_suitable_in_foto = false;
             bool flag_at_have_suitable = false;
             for (int i = 0; i < first_photo_object.rows; i++) {
+                if(flag_at_have_suitable) break;
                 for (int j = 0; j < first_photo_object.cols; j++) {
+                    if(flag_at_have_suitable) break;
                     if (photo.at<cv::Vec3b>(i, j) == array_suitable_pixels[arr_s_p]) {
                         //Записываем в массив количество совпадений, где индекс совпавшевого пикселя в массиве
                         // это индекс, а значение - это количество, которое совпало
                         count_suitable_pix_at_photo[arr_s_p]++;
                         flag_at_have_suitable = true;
+                        flag_at_have_suitable_in_foto = true;
+                        //break;
                     }
                 }
             }
             //копирую и перекидываю в другую папку фотографию на которой не удалось определить деталь
-            if (!flag_at_have_suitable) {
+            if (!flag_at_have_suitable_in_foto) {
                 cv::imwrite("images_that_have_not_been_verified/wheel"+std::to_string(k)+extention_photo_object,
                             photo,
                             {cv::IMWRITE_JPEG_QUALITY, 95});
@@ -377,24 +370,21 @@ int main() {
         }
     }
 
+
     for(int i = 0; i < 5; i++) std::cout << '\n';
     // тут нужно написать код, который найдет все крупные совпадения
     // записать в базу данных
-    BubbleSort(count_suitable_pix_at_photo);
+    BubbleSort(count_suitable_pix_at_photo, size_arr_s_p);
+
 
     for(int i = 0; i < size_arr_s_p; i++){
         double count_suitable_double = count_suitable_pix_at_photo[i];
         double size_arr_s_p_double = size_arr_s_p;
         double result_percent = 0.0;
-        result_percent = count_suitable_double / size_arr_s_p_double * 100.0;
+        result_percent = count_suitable_double / count_photo_object * 100.0;
         std::cout << "percent = " << result_percent << " %" << std::endl;
     }
 
-
-    // в целом это все, но не хватает еще одного. Это ROI по которому и будут браться изображения
-    
-
-    //std::cout << image.type() << std::endl;
 
     delete conn;
     delete stmt;
